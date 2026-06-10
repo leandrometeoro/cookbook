@@ -30,6 +30,26 @@ gh pr list / gh repo view / gh issue ...
     Se o `gh auth status` mostrar "Git operations protocol: ssh", forçar HTTPS:
     `gh config set -h github.com git_protocol https`
 
+## Armadilhas
+
+!!! warning "Máquina remota/headless: o navegador não abre e o login trava"
+    Em servidor acessado por SSH, o `gh` tenta abrir um navegador local e
+    trava (ex.: "Abrindo em uma sessão de navegador existente."). Solução:
+
+    ```bash
+    BROWSER=echo gh auth login
+    ```
+
+    Assim o `gh` apenas **imprime a URL** e fica aguardando. Abra
+    `https://github.com/login/device` em **qualquer aparelho** (notebook,
+    celular), digite o código mostrado no terminal e autorize — o terminal
+    remoto conclui sozinho. O código expira em ~15 min; se passar, rode de novo.
+
+!!! note "Colar token parece não funcionar"
+    O prompt de token é **invisível** (não ecoa o que foi colado): cole com
+    Ctrl+Shift+V e dê Enter mesmo sem ver nada. Token clássico precisa dos
+    escopos `repo`, `read:org` e `workflow` — sem `read:org` o gh rejeita.
+
 ## Verificação
 
 - `gh auth status` → conta logada, protocolo **https**
