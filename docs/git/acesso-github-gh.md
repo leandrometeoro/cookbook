@@ -45,6 +45,30 @@ gh pr list / gh repo view / gh issue ...
     celular), digite o código mostrado no terminal e autorize — o terminal
     remoto conclui sozinho. O código expira em ~15 min; se passar, rode de novo.
 
+!!! warning "Login autoriza no site, mas o terminal falha com i/o timeout"
+    Sintoma: `failed to authenticate ... dial tcp <ip>:443: i/o timeout` ao
+    final do device flow. Causa possível: rota do provedor quebrada para o IP
+    específico que o DNS devolveu para `api.github.com` (aconteceu na rede da
+    snowshark: o backbone da operadora não alcançava `4.228.31.149`, embora o
+    `github.com` ao lado funcionasse). Diagnóstico:
+
+    ```bash
+    curl -sS -m 10 https://api.github.com/zen; echo            # falha?
+    curl -sS -m 10 --resolve api.github.com:443:140.82.112.6 \
+         https://api.github.com/zen; echo                       # funciona?
+    ```
+
+    Se o segundo responder, fixe um IP da faixa oficial (`140.82.112.0/20`,
+    confira em `https://api.github.com/meta`) no `/etc/hosts`:
+
+    ```bash
+    echo "140.82.112.6 api.github.com  # workaround rota ISP, remover quando sarar" \
+      | sudo tee -a /etc/hosts
+    ```
+
+    É um *pin* temporário: teste de vez em quando sem ele (comente a linha) e
+    remova quando a rota do provedor voltar ao normal.
+
 !!! note "Colar token parece não funcionar"
     O prompt de token é **invisível** (não ecoa o que foi colado): cole com
     Ctrl+Shift+V e dê Enter mesmo sem ver nada. Token clássico precisa dos
